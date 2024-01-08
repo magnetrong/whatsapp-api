@@ -3,21 +3,11 @@ require('dotenv').config();
 const { Client: WhatsAppClient } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const express = require('express');
-const puppeteer = require('puppeteer');
 
 const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 1995;
-
-let puppeteerOptions = {};
-
-if (process.env.IS_ARM_ARCHITECTURE === 'true') {
-    puppeteerOptions.executablePath = '/usr/bin/chromium';
-    puppeteerOptions.args = ['--no-sandbox', '--disable-setuid-sandbox'];
-} else {
-    puppeteerOptions.executablePath = 'node_modules/puppeteer/.local-chromium/win64-982053/chrome-win';
-}
 
 const apiKeyMiddleware = (req, res, next) => {
     const authHeader = req.get('Authorization');
@@ -31,9 +21,7 @@ const apiKeyMiddleware = (req, res, next) => {
 };
 
 // Initializing WhatsApp client and API server
-const whatsappClient = new WhatsAppClient({
-    puppeteer: puppeteerOptions,
-});
+const whatsappClient = new WhatsAppClient();
 whatsappClient.on('qr', qr => { qrcode.generate(qr, {small: true});});
 whatsappClient.on('ready', () => { 
     console.log('WhatsApp client is ready!');
